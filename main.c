@@ -1,6 +1,6 @@
 #include "executor.h"
 #include "parser.h"
-#include "prompt.h"
+#include "proompt.h"
 #include "reader.h"
 
 int main(void) {
