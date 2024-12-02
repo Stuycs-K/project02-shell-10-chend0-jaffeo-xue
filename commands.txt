@@ -5,7 +5,7 @@ echo "hello world" | cowsay -f vader
 echo "hello world" > sigma.txt
 cat sigma.txt
 echo "sigma skibidi" > sigma.txt
-echo > sigma.txt
+echo < sigma.txt
 ls > ls.txt
 ls
 cd ..
