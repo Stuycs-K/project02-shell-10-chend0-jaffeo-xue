@@ -6,6 +6,7 @@ echo "hello world" > sigma.txt
 cat sigma.txt
 echo "sigma skibidi" > sigma.txt
 cat < sigma.txt
+cat < sigma.txt | cowsay -f vader  > vader.txt
 ls > ls.txt
 ls
 cd ..
