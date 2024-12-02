@@ -1,4 +1,7 @@
-#include <stdio.h>
+#include "executor.h"
+#include "parser.h"
+#include "prompt.h"
+#include "reader.h"
 
 int main(void) {
 	while (1) {
@@ -9,6 +12,7 @@ int main(void) {
 		for (unsigned long i = 0; i < n; i++) {
 			execute(cmds[i]);
 		}
+		// free(line);  // maybe we need this later
 	}
 	return 0;
 }
