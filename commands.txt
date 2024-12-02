@@ -1,0 +1,12 @@
+echo "hello world"
+cowsay "sigma"
+cowsay -f vader "hello world"
+echo "hello world" | cowsay -f vader
+echo "hello world" > sigma.txt
+cat sigma.txt
+echo "sigma skibidi" > sigma.txt
+echo > sigma.txt
+ls > ls.txt
+ls
+cd ..
+ls
