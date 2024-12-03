@@ -1,7 +1,7 @@
 .PHONY: compile run clean
-compile shell: main.o
-	@gcc -o shell main.o
-main.o: main.c executor.o parser.o proompt.o reader.o
+compile shell: main.o executor.o parser.o proompt.o reader.o
+	@gcc -o shell main.o executor.o parser.o proompt.o reader.o
+main.o: main.c
 	@gcc -c main.c
 executor.o: executor.h executor.c
 	@gcc -c executor.c

@@ -8,7 +8,7 @@ int main(void) {
 		printPrompt();
 		char * line = readLine();
 		unsigned long n;
-		char * cmds[] = parseCmds(&n);  // handle semicolons, length in n
+		char ** cmds = parseCmds(line, &n);  // handle semicolons, length in n
 		for (unsigned long i = 0; i < n; i++) {
 			execute(cmds[i]);
 		}
