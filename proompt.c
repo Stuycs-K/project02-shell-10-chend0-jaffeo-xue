@@ -46,5 +46,6 @@ void printPrompt() {
 	char suffix = geteuid() ? '$' : '#';  // eUID == 0 for root
 	char *direc = getPath();
 	printf("[ %s ]%c ", direc, suffix);
+	free(direc);
 	fflush(stdout);
 }
