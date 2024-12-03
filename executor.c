@@ -5,6 +5,7 @@
  * Turns a space-separated command line into an array of words.
  * WARNING: Mutates the argument string.
  * Returns the NULL-terminated array of words.
+ * Not available for use outside of `executor.c`.
  */
 char** parseCmd(char * command) {
 	return 0;

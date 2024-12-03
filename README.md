@@ -5,4 +5,62 @@
 
 Group members: Elias Xu, David Chen, Otzar Jaffe
 
+### Feature Set
+none, yet...
 
+### Unimplemented
+everything, for now...
+
+### Bugs
+
+### Function Reference
+`executor.h`:
+```c
+/*
+ * Turns a space-separated command line into an array of words.
+ * WARNING: Mutates the argument string.
+ * Returns the NULL-terminated array of words.
+ * Not available for use outside of `executor.c`.
+ */
+char** parseCmd(char * command);
+
+/*
+ * Parses and executes the command given in `command` using execvp().
+ */
+void execute(char *command);
+```
+
+`parser.h`:
+```c
+/*
+ * Separates a semi-colon separated line of user input into an array of strings.
+ * WARNING: Mutates the inputted line.
+ * Returns the array of strings and writes the length of said array to `n`.
+ */
+char ** parseCmds(char* line, unsigned long *n);
+```
+
+`proompt.h` (blame Elias for the name):
+```c
+/*
+ * Reads the CWD, replacing leading instances of the environment variable $HOME with ~.
+ * Trailing bytes may be allocated, and should be ignored.
+ * Returns the string after ~ replacement.
+ * Not available for use outside of `proompt.c`.
+ */
+char * getPath();
+
+/*
+ * Reads the CWD and UID and prints an appropriate Bash-style prompt.
+ */
+void printPrompt();
+```
+`reader.h`:
+```c
+/*
+ * Reads a newline-delimited line of input from stdin.
+ * WARNING: malloc()s a new block of data potentially larger than user input. Do not forget to free().
+ * Returns the read line of input.
+ */
+char * readLine();
+```
