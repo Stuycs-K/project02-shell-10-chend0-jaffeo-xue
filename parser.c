@@ -1,24 +1,25 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 /*
  * Separates a semi-colon separated line of user input into an array of strings.
  * WARNING: Mutates the inputted line.
  * Returns the array of strings and writes the length of said array to `n`.
  */
-char **parseCmds(char *line, unsigned long *n) {
-    char **arg_ary = malloc(sizeof(char *) * (strlen(line) / 2));
-    for (int i = 0; i < (strlen(line) / 2); i++) {
-        arg_ary[i] = malloc(sizeof(char) * (strlen(line) + 1));
-    }
-    int arg_index = 0;
-    while (strstr(line, ";") != NULL) {
-        char *c = strsep(&line, ";");
-        if (strcmp("", c) != 0 || strcmp(" ", c) != 0) {
-            strcpy(arg_ary[arg_index], c);
-            arg_index++;
+char ** parseCmds(char* line, unsigned long *n) {
+    unsigned long size = 1, i = 0;
+    char** cmds = malloc(sizeof(char*));
+    char* cur = line;
+    do {
+        if (i > size) {
+            // we're ArrayListing this today
+            size *= 2;
+            cmds = realloc(cmds, size * (sizeof(char*)));
         }
-    }
-    arg_ary[arg_index] = line;
-    (*n) = arg_index + 1;
-    return arg_ary;
+        cmds[i] = cur;
+        strsep(&cur, ";");
+        i++;
+    } while ( cur );
+    *n = i;
+    return cmds;
 }
