@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,36 +12,33 @@
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
  */
-char **parseCmd(char *c) {
-    char *arg_ary[strlen(c)];
+
+void parse_args(char *command, char **arg_ary) {
     int arg_index = 0;
-    char *command = strdup(c);
     while (strstr(command, " ") != NULL) {
-        arg_ary[arg_index] = strsep(&command, " ");
-        arg_index++;
+        char *c = strsep(&command, " ");
+        if (strcmp("", c) != 0 || strcmp(" ", c) != 0) {
+            arg_ary[arg_index] = strsep(&command, " ");
+            arg_index++;
+        }
     }
     arg_ary[arg_index] = command;
     arg_ary[arg_index + 1] = NULL;
-    char **memorized_elements = malloc((arg_index + 2) * sizeof(char *));
-    for (int i = 0; i < (arg_index + 2); i++) {
-        memorized_elements[i] = malloc(sizeof(char) * MAX_SIZE_ARG);
-        strcpy(memorized_elements[i], arg_ary[i]);
-    }
-    return memorized_elements;
 }
 
 /*
  * Parses and executes the command given in `command` using execvp().
  */
 void execute(char *command) {
-    pid_t p = fork();
-    printf("sigma\n");
+    pid_t p;
+    p = fork();
     if (p < 0) {
         perror("fork fail\n");
         return;
     }
     if (p == 0) {
-        char **args = parseCmd(command);
+        char *args[16];
+        parse_args(command, args);
         execvp(args[0], args);
     } else {
         int status;

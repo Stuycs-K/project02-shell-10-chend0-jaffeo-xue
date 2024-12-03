@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 /*
  * Reads a newline-delimited line of input from stdin. May exit on EOF if no
  * buffered input is found. WARNING: malloc()s a new block of data potentially
@@ -12,5 +13,8 @@
 char *readLine() {
     char *ret = malloc(SIZE_STATIC * (sizeof(char)));
     fgets(ret, SIZE_STATIC, stdin);
+    if (ret[strlen(ret) - 1] == '\n') {
+        ret[strlen(ret)-1] = '\0';
+    }
     return ret;
 }
