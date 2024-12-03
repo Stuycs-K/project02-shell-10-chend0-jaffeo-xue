@@ -32,4 +32,17 @@ char **parseCmd(char *c) {
 /*
  * Parses and executes the command given in `command` using execvp().
  */
-void execute(char *command) {}
+void execute(char *command) {
+    pid_t p = fork();
+    if (p < 0) {
+        perror("fork fail\n");
+        return;
+    }
+    if (p == 0) {
+        char **args = parseCmd(command);
+        execvp(args[0], args);
+    } else {
+        int status;
+        int exit_pid = wait(&status);
+    }
+}
