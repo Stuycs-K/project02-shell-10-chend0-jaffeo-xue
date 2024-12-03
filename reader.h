@@ -1,4 +1,4 @@
 #ifndef READER_H
 #define READER_H
-char* readLine();
+char *readLine();
 #endif

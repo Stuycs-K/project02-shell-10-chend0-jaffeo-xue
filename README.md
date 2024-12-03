@@ -1,4 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Tfg6waJb)
+
 # Systems Project2 - MyShell
 
 ## DOE Presents: The Practical Operation Orchestration Prompt
@@ -6,18 +7,22 @@
 Group members: Elias Xu, David Chen, Otzar Jaffe
 
 ### Feature Set
+
 Dynamic prompt that
+
 - displays the current working directory, with `~` substituted for `$HOME` when possible
 - displays `#` for root sessions, and `$` for other user sessions
 
-
 ### Unimplemented
+
 everything, for now...
 
 ### Bugs
 
 ### Function Reference
+
 `executor.h`:
+
 ```c
 /*
  * Turns a space-separated command line into an array of words.
@@ -34,6 +39,7 @@ void execute(char *command);
 ```
 
 `parser.h`:
+
 ```c
 /*
  * Separates a semi-colon separated line of user input into an array of strings.
@@ -44,6 +50,7 @@ char ** parseCmds(char* line, unsigned long *n);
 ```
 
 `proompt.h` (blame Elias for the name):
+
 ```c
 /*
  * Reads the CWD, replacing leading instances of the environment variable $HOME with ~.
@@ -59,7 +66,9 @@ char * getPath();
  */
 void printPrompt();
 ```
+
 `reader.h`:
+
 ```c
 /*
  * Reads a newline-delimited line of input from stdin. May exit on EOF if no buffered input is found.

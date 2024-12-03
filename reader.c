@@ -14,7 +14,7 @@ char *readLine() {
     char *ret = malloc(SIZE_STATIC * (sizeof(char)));
     fgets(ret, SIZE_STATIC, stdin);
     if (ret[strlen(ret) - 1] == '\n') {
-        ret[strlen(ret)-1] = '\0';
+        ret[strlen(ret) - 1] = '\0';
     }
     return ret;
 }
