@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#define NUMBER_OF_ARGS_MAX 30
 #define MAX_SIZE_ARG 20
 
 /*
@@ -13,7 +12,7 @@
  * Not available for use outside of `executor.c`.
  */
 char **parseCmd(char *c) {
-    char *arg_ary[NUMBER_OF_ARGS_MAX];
+    char *arg_ary[strlen(c)];
     int arg_index = 0;
     char *command = strdup(c);
     while (strstr(command, " ") != NULL) {
@@ -22,8 +21,8 @@ char **parseCmd(char *c) {
     }
     arg_ary[arg_index] = command;
     arg_ary[arg_index + 1] = NULL;
-    char **memorized_elements = malloc((arg_index + 1) * sizeof(char *));
-    for (int i = 0; i < (arg_index + 1); i++) {
+    char **memorized_elements = malloc((arg_index + 2) * sizeof(char *));
+    for (int i = 0; i < (arg_index + 2); i++) {
         memorized_elements[i] = malloc(sizeof(char) * MAX_SIZE_ARG);
         strcpy(memorized_elements[i], arg_ary[i]);
     }
