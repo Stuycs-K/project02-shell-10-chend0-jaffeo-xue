@@ -14,6 +14,7 @@
  */
 
 void parse_args(char *command, char **arg_ary) {
+    printf("command %s\n", command);
     int arg_index = 0;
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
@@ -22,6 +23,7 @@ void parse_args(char *command, char **arg_ary) {
             arg_index++;
         }
     }
+    printf("hello27\n");
     arg_ary[arg_index] = command;
     arg_ary[arg_index + 1] = NULL;
 }
@@ -36,12 +38,35 @@ void execute(char *command) {
         perror("fork fail\n");
         return;
     }
+    char *args[16];
     if (p == 0) {
-        char *args[16];
-        parse_args(command, args);
-        execvp(args[0], args);
+        if (command[0] != 'c' && command[1] != 'd') {
+            parse_args(command, args);
+            execvp(args[0], args);
+            exit(0);
+        }
+        exit(0);
     } else {
         int status;
         int exit_pid = wait(&status);
+        if (command[0] == 'c' && command[1] == 'd') {
+            parse_args(command, args);
+            char *cwd = malloc(5056);
+            if (!getcwd(cwd, 5056)) {
+                perror("getcwd\n");
+                cwd[0] = '\0';
+                return;
+            }
+            printf("sigma56\n");
+            printf("cwd: %s\n", cwd);
+            char *diff = "/";
+            char buff[2000];
+            strcpy(buff, cwd);
+            strcat(buff, diff);
+            printf(buff);
+            // strcat(s, args[1])
+
+            // chdir(strcat(strcat(cwd, "/"), args[1]));
+        }
     }
 }
