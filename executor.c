@@ -34,6 +34,7 @@ char **parseCmd(char *c) {
  */
 void execute(char *command) {
     pid_t p = fork();
+    printf("sigma\n");
     if (p < 0) {
         perror("fork fail\n");
         return;
