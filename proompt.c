@@ -5,7 +5,8 @@
 
 /*
  * Reads the CWD, replacing leading instances of the environment variable $HOME
- * with ~. WARNING: Implicitly malloc()s a buffer for the path, return value
+ * with ~.
+ * WARNING: Implicitly malloc()s a buffer for the path, return value
  * should be free()d. Trailing bytes may be allocated, and should be ignored.
  * Returns the string after ~ replacement.
  * Not available for use outside of `proompt.c`.
