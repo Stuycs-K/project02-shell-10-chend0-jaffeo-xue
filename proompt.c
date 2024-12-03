@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "colors.h"
+
 /*
  * Reads the CWD, replacing leading instances of the environment variable $HOME
  * with ~.
@@ -60,7 +62,9 @@ char *getPath() {
 void printPrompt() {
     char suffix = geteuid() ? '$' : '#'; // eUID == 0 for root
     char *direc = getPath();
-    printf("[ %s ]%c ", direc, suffix);
+    printf(HRED "[" reset " " HGRN "%s" reset " " HRED "]" reset "" HCYN
+                "%c" reset " ",
+           direc, suffix);
     free(direc);
     fflush(stdout);
 }
