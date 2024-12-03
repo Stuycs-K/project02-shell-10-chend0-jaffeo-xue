@@ -45,6 +45,7 @@ char ** parseCmds(char* line, unsigned long *n);
 /*
  * Reads the CWD, replacing leading instances of the environment variable $HOME with ~.
  * Trailing bytes may be allocated, and should be ignored.
+ * WARNING: Implicitly malloc()s a buffer for the path, return value should be free()d.
  * Returns the string after ~ replacement.
  * Not available for use outside of `proompt.c`.
  */
