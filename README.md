@@ -6,7 +6,10 @@
 Group members: Elias Xu, David Chen, Otzar Jaffe
 
 ### Feature Set
-none, yet...
+Dynamic prompt that
+- displays the current working directory, with `~` substituted for `$HOME` when possible
+- displays `#` for root sessions, and `$` for other user sessions
+
 
 ### Unimplemented
 everything, for now...
