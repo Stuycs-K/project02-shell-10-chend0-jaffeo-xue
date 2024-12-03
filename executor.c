@@ -14,16 +14,14 @@
  */
 
 void parse_args(char *command, char **arg_ary) {
-    printf("command %s\n", command);
     int arg_index = 0;
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
         if (strcmp("", c) != 0 || strcmp(" ", c) != 0) {
-            arg_ary[arg_index] = strsep(&command, " ");
+            arg_ary[arg_index] = c;
             arg_index++;
         }
     }
-    printf("hello27\n");
     arg_ary[arg_index] = command;
     arg_ary[arg_index + 1] = NULL;
 }
@@ -32,16 +30,16 @@ void parse_args(char *command, char **arg_ary) {
  * Parses and executes the command given in `command` using execvp().
  */
 void execute(char *command) {
+    char *args[16];
+    parse_args(command, args);
     pid_t p;
     p = fork();
     if (p < 0) {
         perror("fork fail\n");
         return;
     }
-    char *args[16];
     if (p == 0) {
-        if (command[0] != 'c' && command[1] != 'd') {
-            parse_args(command, args);
+        if (strcmp(args[0], "cd") != 0) {
             execvp(args[0], args);
             exit(0);
         }
@@ -49,24 +47,21 @@ void execute(char *command) {
     } else {
         int status;
         int exit_pid = wait(&status);
-        if (command[0] == 'c' && command[1] == 'd') {
-            parse_args(command, args);
+        if (strcmp(args[0], "cd") == 0) {
             char *cwd = malloc(5056);
             if (!getcwd(cwd, 5056)) {
                 perror("getcwd\n");
                 cwd[0] = '\0';
                 return;
             }
-            printf("sigma56\n");
-            printf("cwd: %s\n", cwd);
             char *diff = "/";
             char buff[2000];
             strcpy(buff, cwd);
             strcat(buff, diff);
-            printf(buff);
-            // strcat(s, args[1])
-
-            // chdir(strcat(strcat(cwd, "/"), args[1]));
+            if (args[1] != NULL) {
+                strcat(buff, args[1]);
+            }
+            chdir(buff);
         }
     }
 }
