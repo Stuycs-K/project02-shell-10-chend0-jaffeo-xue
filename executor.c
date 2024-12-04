@@ -13,6 +13,7 @@
  * WARNING: Mutates the argument string.
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
+ * Works the same as the python command.split(" ")[start:end]
  */
 void parse_args(char *command, char **arg_ary, int start, int end) {
     int arg_index = 0;
@@ -23,7 +24,7 @@ void parse_args(char *command, char **arg_ary, int start, int end) {
 						total_found++;
 
 						// if you have a start value...
-						if (start != NULL && start > total_found) {
+						if (start != -1 && start > total_found) {
 								continue;
 						}
             
@@ -31,7 +32,7 @@ void parse_args(char *command, char **arg_ary, int start, int end) {
          		arg_index++;
 
 						// if you have an end value...
-						if (end != NULL && end > arg_index) {
+						if (end != -1 && end > arg_index) {
 								break;
 						}
         }
@@ -46,7 +47,7 @@ void execute(char *command) {
 		parse_args(command, args, NULL, NULL);
 
 		for(int i = 0; i < 16; i++) {
-				if (strcmp(args[i], "<")) {
+				if (strcmp(args[i], "|")) {
 						parse_args(new_args, 0, i);
 						run(new_args, x, x);
 						parse_args(new_args, i, 16);
