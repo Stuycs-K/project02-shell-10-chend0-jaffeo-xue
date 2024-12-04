@@ -1,10 +1,10 @@
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
-
+#include <unistd.h>
 
 #define MAX_SIZE_ARG 20
 
@@ -14,12 +14,11 @@
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
  */
-
 void parse_args(char *command, char **arg_ary) {
     int arg_index = 0;
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
-        if (strcmp("", c) != 0 || strcmp(" ", c) != 0) {
+        if (strcmp("", c) != 0 && c[0] != ' ') {
             arg_ary[arg_index] = c;
             arg_index++;
         }
@@ -32,40 +31,29 @@ void parse_args(char *command, char **arg_ary) {
  * Parses and executes the command given in `command` using execvp().
  */
 void execute(char *command) {
+    // TODO MAKE DYNAMIC
     char *args[16];
     parse_args(command, args);
+    if (!strcmp(args[0], "cd")) {
+        char *path = args[1]; // in worst case is NULL
+        if (!path)
+            path = getenv("HOME");
+        if (path) // could be still NULL from being HOMEless
+            chdir(path);
+    } else if (!strcmp(args[0], "exit")) {
+        exit(0);
+    }
     pid_t p;
     p = fork();
     if (p < 0) {
-        perror("fork fail\n");
+        perror("fork");
         return;
-    }
-    if (p == 0) {
-        if (strcmp(args[0], "cd") != 0) {
-            execvp(args[0], args);
-            exit(0);
-        }
-        exit(0);
+    } else if (p == 0) {
+        execvp(args[0], args);
+        perror(args[0]);
+        exit(errno);
     } else {
         int status;
         int exit_pid = wait(&status);
-        if (strcmp(args[0], "cd") == 0) {
-            char *cwd = malloc(5056);
-            if (!getcwd(cwd, 5056)) {
-                perror("getcwd\n");
-                cwd[0] = '\0';
-                return;
-            }
-            char *diff = "/";
-            char buff[2000];
-            strcpy(buff, cwd);
-            strcat(buff, diff);
-            if (args[1] != NULL) {
-                strcat(buff, args[1]);
-                chdir(buff);
-            } else {
-                chdir(getenv("HOME"));
-            }
-        }
     }
 }
