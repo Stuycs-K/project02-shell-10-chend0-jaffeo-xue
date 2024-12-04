@@ -34,7 +34,9 @@ void execute(char *command) {
     // TODO MAKE DYNAMIC
     char *args[16];
     parse_args(command, args);
-    if (!strcmp(args[0], "cd")) {
+    if (args[0] == NULL || args[0][0] == '\0')
+        return;
+    else if (!strcmp(args[0], "cd")) {
         char *path = args[1]; // in worst case is NULL
         if (!path)
             path = getenv("HOME");
@@ -42,18 +44,19 @@ void execute(char *command) {
             chdir(path);
     } else if (!strcmp(args[0], "exit")) {
         exit(0);
-    }
-    pid_t p;
-    p = fork();
-    if (p < 0) {
-        perror("fork");
-        return;
-    } else if (p == 0) {
-        execvp(args[0], args);
-        perror(args[0]);
-        exit(errno);
     } else {
-        int status;
-        int exit_pid = wait(&status);
+        pid_t p;
+        p = fork();
+        if (p < 0) {
+            perror("fork");
+            return;
+        } else if (p == 0) {
+            execvp(args[0], args);
+            perror(args[0]);
+            exit(errno);
+        } else {
+            int status;
+            int exit_pid = wait(&status);
+        }
     }
 }
