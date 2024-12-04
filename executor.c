@@ -14,13 +14,26 @@
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
  */
-void parse_args(char *command, char **arg_ary) {
+void parse_args(char *command, char **arg_ary, int start, int end) {
     int arg_index = 0;
+		int total_found = 0;
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
         if (strcmp("", c) != 0 && c[0] != ' ') {
-            arg_ary[arg_index] = c;
-            arg_index++;
+						total_found++;
+
+						// if you have a start value...
+						if (start != NULL && start > total_found) {
+								continue;
+						}
+            
+						arg_ary[arg_index] = c;
+         		arg_index++;
+
+						// if you have an end value...
+						if (end != NULL && end > arg_index) {
+								break;
+						}
         }
     }
     arg_ary[arg_index] = command;
@@ -29,20 +42,24 @@ void parse_args(char *command, char **arg_ary) {
 
 void execute(char *command) {
 		char *args[16];
-		char **args = parse_args(command, args);
+		char *new_args[16];
+		parse_args(command, args, NULL, NULL);
 
 		for(int i = 0; i < 16; i++) {
-				if (strcmp(args[i])
+				if (strcmp(args[i], "<")) {
+						parse_args(new_args, 0, i);
+						run(new_args, x, x);
+						parse_args(new_args, i, 16);
+						run(new_args, x, x);
+				}
 		}
 } 
 
 /*
  * Parses and executes the command given in `command` using execvp().
  */
-void run(char *command, int input, int output) {
+void run(char *args[16], int input, int output) {
     // TODO MAKE DYNAMIC
-    char *args[16];
-    parse_args(command, args);
     if (args[0] == NULL || args[0][0] == '\0')
         return;
     else if (!strcmp(args[0], "cd")) {
