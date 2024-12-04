@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define MAX_SIZE_ARG 20
 
@@ -41,25 +42,24 @@ void parse_args(char *command, char **arg_ary, int start, int end) {
     arg_ary[arg_index + 1] = NULL;
 }
 
-void execute(char *command) {
-		char *args[16];
-		char *new_args[16];
-		parse_args(command, args, NULL, NULL);
-
-		for(int i = 0; i < 16; i++) {
-				if (strcmp(args[i], "|")) {
-						parse_args(new_args, 0, i);
-						run(new_args, x, x);
-						parse_args(new_args, i, 16);
-						run(new_args, x, x);
-				}
-		}
-} 
 
 /*
  * Parses and executes the command given in `command` using execvp().
  */
-void run(char *args[16], int input, int output) {
+void run(char *args[16], int input, int output, char *output_file) {
+		int stdout = STDOUT_FILENO;
+		int stdin = STDIN_FILENO;
+		int backup_stdout = dup(stdout);
+
+		// we are sending something to an output
+		if (output > 0) {
+				// if output is 1, then we are overwritting; if it is 2, we are appending
+				int fd1 = 0;
+                if (output == 1) { fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644); }
+                if (output == 2) { fd1 = open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644); }
+				dup2(fd1, stdout);
+		}
+
     // TODO MAKE DYNAMIC
     if (args[0] == NULL || args[0][0] == '\0')
         return;
@@ -86,4 +86,21 @@ void run(char *args[16], int input, int output) {
             int exit_pid = wait(&status);
         }
     }
+		dup2(backup_stdout, stdout);
 }
+
+void execute(char *command) {
+		char *args[16];
+		char *new_args[16];
+		parse_args(command, args, -1, -1);
+		run(args, 0, 1, "cat.txt");
+		/*
+		for(int i = 0; i < 16; i++) {
+				if (strcmp(args[i], "|")) {
+						parse_args(new_args, 0, i);
+						run(new_args, x, x);
+						parse_args(new_args, i, 16);
+						run(new_args, x, x);
+				}
+		}*/
+} 
