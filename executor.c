@@ -27,10 +27,19 @@ void parse_args(char *command, char **arg_ary) {
     arg_ary[arg_index + 1] = NULL;
 }
 
+void execute(char *command) {
+		char *args[16];
+		char **args = parse_args(command, args);
+
+		for(int i = 0; i < 16; i++) {
+				if (strcmp(args[i])
+		}
+} 
+
 /*
  * Parses and executes the command given in `command` using execvp().
  */
-void execute(char *command) {
+void run(char *command, int input, int output) {
     // TODO MAKE DYNAMIC
     char *args[16];
     parse_args(command, args);
