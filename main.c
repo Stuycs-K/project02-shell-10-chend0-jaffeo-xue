@@ -12,14 +12,11 @@ int main(void) {
         char *line = readLine();
         unsigned long n = 0;
         char **cmds = parseCmds(line, &n); // handle semicolons, length in n
-        char *e = "exit";
-        if (strcmp(cmds[0], e) == 0) {
-            exit(0);
-        }
         for (unsigned long i = 0; i < n; i++) {
             execute(cmds[i]);
         }
-        // free(line);  // maybe we need this later
+        free(line);
+        free(cmds);
     }
     return 0;
 }
