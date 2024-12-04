@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,14 +8,43 @@
  * larger than user input. Do not forget to free(). Returns the read line of
  * input.
  */
-
-// kludge for now
-#define SIZE_STATIC 256
 char *readLine() {
-    char *ret = malloc(SIZE_STATIC * (sizeof(char)));
-    fgets(ret, SIZE_STATIC, stdin);
-    if (ret[strlen(ret) - 1] == '\n') {
-        ret[strlen(ret) - 1] = '\0';
+    unsigned long i = 0, size = 16;
+    char *ret = malloc(size * (sizeof(char)));
+    if (!ret) {
+        perror("malloc");
+        exit(errno);
     }
+    int buf;
+    char endLoop = 0;
+    while ((buf = fgetc(stdin)) != EOF) {
+        switch (buf) {
+        // not necessary since human input is line-buffered but hey nice to have
+        case 0177: // DEL
+            ret[i] = '\0';
+            i--;
+            break;
+        case '\r':
+        case '\n':
+            endLoop = 1;
+            buf = '\0';
+        // fallthrough
+        default:
+            if (i >= size) {
+                size *= 2;
+                if (!(ret = realloc(ret, size * sizeof(char)))) {
+                    perror("calloc");
+                    exit(errno);
+                }
+            }
+            ret[i] = buf;
+            i++;
+        }
+        if (endLoop)
+            break;
+    }
+    if (buf == EOF)
+        if (!i) // no buffered input
+            exit(0);
     return ret;
 }
