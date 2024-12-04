@@ -14,4 +14,4 @@ reader.o: reader.h reader.c
 run: shell
 	@./shell $(ARGS)
 clean:
-	@-rm -rf shell *.o *.txt
+	@-rm -rf shell *.o 
