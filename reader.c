@@ -15,7 +15,7 @@ char *readLine() {
         perror("malloc");
         exit(errno);
     }
-    int buf;
+    int buf, last = 0;
     char endLoop = 0;
     while ((buf = fgetc(stdin)) != EOF) {
         switch (buf) {
@@ -27,9 +27,18 @@ char *readLine() {
         case '\r':
         case '\n':
             endLoop = 1;
+            // roll back trailing whitespace
+            while (ret[--i] == ' ' || ret[i] == '\t')
+                ;
+            i++;
             buf = '\0';
         // fallthrough
+        case ' ':
+            if (buf == ' ' && last == ' ')
+                continue;
+        // fallthrough
         default:
+            last = buf;
             if (i >= size) {
                 size *= 2;
                 if (!(ret = realloc(ret, size * sizeof(char)))) {
