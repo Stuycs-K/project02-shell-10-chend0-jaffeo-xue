@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define MAX_SIZE_ARG 20
 
 /*
  * Turns a space-separated command line into an array of words.
