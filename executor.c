@@ -60,8 +60,10 @@ void execute(char *command) {
             strcat(buff, diff);
             if (args[1] != NULL) {
                 strcat(buff, args[1]);
+                chdir(buff);
+            } else {
+                chdir(getenv("HOME"));
             }
-            chdir(buff);
         }
     }
 }
