@@ -1,0 +1,6 @@
+echo Implement simple pipes. Only one pipe at a time is required.
+cowsay -f vader "hello world"
+echo 8 6 7 5 3 0 9 
+toilet -f emboss Execute!
+toilet Hello --metal
+cowsay -f dragon-and-cow roar
