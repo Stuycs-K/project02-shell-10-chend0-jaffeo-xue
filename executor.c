@@ -39,8 +39,10 @@ void execute(char *command) {
         char *path = args[1]; // in worst case is NULL
         if (!path)
             path = getenv("HOME");
-        if (path) // could be still NULL from being HOMEless
-            chdir(path);
+        if (path) { // could be still NULL from being HOMEless
+            if (chdir(path))
+		    perror(path);
+	}
     } else if (!strcmp(args[0], "exit")) {
         exit(0);
     } else {
