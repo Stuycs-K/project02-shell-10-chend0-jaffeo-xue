@@ -1,5 +1,5 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 void execute(char *command);
-void run(char *args[16], int input, int output, char *output_file);
+void run(char *args[16], int input, int output, char *output_file, char *input_file);
 #endif

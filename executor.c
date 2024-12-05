@@ -46,17 +46,25 @@ void parse_args(char *command, char **arg_ary, int start, int end) {
 /*
  * Parses and executes the command given in `command` using execvp().
  */
-void run(char *args[16], int input, int output, char *output_file) {
+void run(char *args[16], int input, int output, char *output_file, char *input_file) {
 		int stdout = STDOUT_FILENO;
 		int stdin = STDIN_FILENO;
 		int backup_stdout = dup(stdout);
+		int backup_stdin = dup(stdin);
 
-		// we are sending something to an output
+		// if we are sending something to an input
+		if (input > 0) {
+				int f_in = 0;
+				f_in = open(input_file, O_RDONLY);
+				dup2(f_in, stdin); 
+		}
+
+		// if we are sending something to an output
 		if (output > 0) {
 				// if output is 1, then we are overwritting; if it is 2, we are appending
 				int fd1 = 0;
-                if (output == 1) { fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644); }
-                if (output == 2) { fd1 = open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644); }
+				if (output == 1) { fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644); }
+				if (output == 2) { fd1 = open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644); }
 				dup2(fd1, stdout);
 		}
 
@@ -87,13 +95,14 @@ void run(char *args[16], int input, int output, char *output_file) {
         }
     }
 		dup2(backup_stdout, stdout);
+		dup2(backup_stdin, stdin);
 }
 
 void execute(char *command) {
 		char *args[16];
 		char *new_args[16];
 		parse_args(command, args, -1, -1);
-		run(args, 0, 1, "cat.txt");
+		run(args, 1, 0, NULL, "executor.c");
 		/*
 		for(int i = 0; i < 16; i++) {
 				if (strcmp(args[i], "|")) {
