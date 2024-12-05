@@ -19,6 +19,8 @@
 void parse_args(char *command, char **arg_ary, int start, int end) {
     int arg_index = 0;
 	int total_found = 0;
+    char *original_command = command;
+
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
         if (strcmp("", c) != 0 && c[0] != ' ') {
@@ -29,13 +31,16 @@ void parse_args(char *command, char **arg_ary, int start, int end) {
                 continue;
             }
 
+            // if you have an end value...
+            if (end != -1 && total_found >= end) {
+                break;
+			}
+
             arg_ary[arg_index] = c;
             arg_index++;
 
-            // if you have an end value...
-            if (end != -1 && end >= arg_index) {
-                break;
-						}
+            printf("%d %s\n", arg_index, c);
+            
         }
     }
     arg_ary[arg_index] = command;
@@ -105,41 +110,43 @@ void execute_commands(char *command, char *args[16]) {
     char *output_file = NULL;
     int output_mode = 0; // this could be 1 or 2 (see func above to see the diff)
     char temp_file[] = "temp.txt";
-
     int index_last_command = 0;
     
     for (int i = 0; args[i] != NULL; i++) {
-        if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // got the last one too in case there are no specific stuff in the cmd
+        if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || 
+            strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // last one for if the symbols dont exist in the command
             // first we will handle the redirection ones cause they are easiwer
             if (strcmp(args[i], "<") == 0) {
                 i += 1;
-                printf("%d %s\n", i, args[i]);
+                input_file = args[i];
 
-                char *new_args[16];
-                parse_args(command, new_args, index_last_command, i);
+                parse_args(command, new_args, index_last_command, i - 1);
                 
-                run(args, 1, 0, NULL, args[i]);
+                run(new_args, 1, 0, NULL, input_file);
             } else if (strcmp(args[i], ">") == 0) {
                 i += 1;
-                printf("%d %s\n", i, args[i]);
+                output_file = args[i];
+                output_mode = 1;
 
-                char *new_args[16];
-                parse_args(command, new_args, index_last_command, i);
+                parse_args(command, new_args, index_last_command, i - 0);
+
+                printf("%s %s %d \n", new_args[0], new_args[1], i - 0);
                 
-                run(new_args, 0, 1, args[i], NULL);
+                run(new_args, 0, 1, output_file, NULL);
             } else if (strcmp(args[i], ">>") == 0) {
                 i += 1;
-                printf("%d %s\n", i, args[i]);
+                output_file = args[i];
+                output_mode = 2;
 
-                char *new_args[16];
-                parse_args(command, new_args, index_last_command, i);
+                parse_args(command, new_args, index_last_command, i - 1);
                 
-                run(new_args, 0, 2, args[i], NULL);
-            } else {
+                run(new_args, 0, output_mode, output_file, NULL);
+            } else if (args[i + 1] == NULL) {
+                parse_args(command, new_args, index_last_command, i);
                 run(args, 0, 0, NULL, NULL);
             }
 
-            index_last_command++;
+            index_last_command = i + 1;
         }
     }
 }
