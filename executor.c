@@ -18,23 +18,23 @@
  */
 void parse_args(char *command, char **arg_ary, int start, int end) {
     int arg_index = 0;
-		int total_found = 0;
+	int total_found = 0;
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
         if (strcmp("", c) != 0 && c[0] != ' ') {
-						total_found++;
+            total_found++;
 
-						// if you have a start value...
-						if (start != -1 && start > total_found) {
-								continue;
-						}
-            
-						arg_ary[arg_index] = c;
-         		arg_index++;
+            // if you have a start value...
+            if (start != -1 && start > total_found) {
+                continue;
+            }
 
-						// if you have an end value...
-						if (end != -1 && end > arg_index) {
-								break;
+            arg_ary[arg_index] = c;
+            arg_index++;
+
+            // if you have an end value...
+            if (end != -1 && end >= arg_index) {
+                break;
 						}
         }
     }
@@ -98,18 +98,42 @@ void run(char *args[16], int input, int output, char *output_file, char *input_f
 		dup2(backup_stdin, stdin);
 }
 
+// for ref: void run(char *args[16], int input, int output, char *output_file, char *input_file)
+void execute_commands(char *command, char *args[16]) {
+    char *new_args[16];
+    char *input_file = NULL;
+    char *output_file = NULL;
+    int output_mode = 0; // this could be 1 or 2 (see func above to see the diff)
+    char temp_file[] = "temp.txt";
+
+    int index_last_command = 0;
+    
+    for (int i = 0; args[i] != NULL; i++) {
+        if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // got the last one too in case there are no specific stuff in the cmd
+            // first we will handle the redirection ones cause they are easiwer
+            if (strcmp(args[i], "<") == 0) {
+                run(args, 1, 0, NULL, args[i+1]);
+            } else if (strcmp(args[i], ">") == 0) {
+                i += 1;
+                printf("%d %s\n", i, args[i]);
+
+                char *new_args[16];
+                parse_args(command, new_args, index_last_command, i);
+                
+                run(new_args, 0, 1, args[i], NULL);
+            } else if (strcmp(args[i], ">>") == 0) {
+                run(args, 0, 2, args[++i], NULL);
+            } else {
+                run(args, 0, 0, NULL, NULL);
+            }
+
+            index_last_command++;
+        }
+    }
+}
+
 void execute(char *command) {
-		char *args[16];
-		char *new_args[16];
-		parse_args(command, args, -1, -1);
-		run(args, 1, 0, NULL, "executor.c");
-		/*
-		for(int i = 0; i < 16; i++) {
-				if (strcmp(args[i], "|")) {
-						parse_args(new_args, 0, i);
-						run(new_args, x, x);
-						parse_args(new_args, i, 16);
-						run(new_args, x, x);
-				}
-		}*/
+    char *args[16];	
+    parse_args(command, args, -1, -1);
+    execute_commands(command, args);
 } 
