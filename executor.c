@@ -9,9 +9,17 @@
 
 #define MAX_SIZE_ARG 20
 
+void print_char_ss(char **args) {
+		for (int i = 0; args[i] != NULL; i++) {
+				printf("%s ", args[i]);
+		}
+		printf("\n");
+}
+
 // slicing function
 char** slice(char **arg_ary, int start, int end) {
-		char **sliced_args = malloc(sizeof(char*) * (end-start + 1));
+		printf("%ld\n",sizeof(char*) * (end-start + 2));
+		char **sliced_args = malloc(sizeof(char*) * (end-start + 2));
 		for (int i = start; i < end; i++) {
 				sliced_args[i - start] = arg_ary[i];
 		}
@@ -94,7 +102,7 @@ void run(char *args[16], int input, int output, char *output_file, char *input_f
 }
 
 // for ref: void run(char *args[16], int input, int output, char *output_file, char *input_file)
-void execute_commands(char *args[16]) {
+void execute_commands(char **args) {
     char **new_args;
     char *input_file = NULL;
     char *output_file = NULL;
@@ -104,8 +112,7 @@ void execute_commands(char *args[16]) {
     
     for (int i = 0; args[i] != NULL; i++) {
 				new_args = NULL;
-        if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || 
-            strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // last one for if the symbols dont exist in the command
+        if (strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // last one for if the symbols dont exist in the command
             // first we will handle the redirection ones cause they are easiwer
             if (strcmp(args[i], "<") == 0) {
                 i += 1;
@@ -142,8 +149,48 @@ void execute_commands(char *args[16]) {
 		free(new_args);
 }
 
+void reorganize_pipe(char **args) {
+		int pipe = -1;
+		int size = 0;
+		for (int i = 0; args[i] != NULL; i++) {
+				if(strcmp(args[i], "|") == 0) {
+						pipe = i;
+				}
+				size = i + 1;
+		}
+
+		printf("Size is %d and pip is at %d\n", size, pipe);
+
+		if (pipe > 0) {
+				char **args1 = malloc(sizeof(char*) * (size + 1));
+				char **args2 = malloc(sizeof(char*) * (size + 1));
+
+				args1 = slice(args, 0, pipe);
+				args1[pipe] = ">";
+				args1[pipe + 1] = "temp.txt";
+				args1[pipe + 2] = NULL;
+
+				print_char_ss(args1);
+
+				printf("start %d end %d \n", pipe + 1, size);
+				args2 = slice(args, pipe + 1, size);
+				print_char_ss(args2);
+				int len_args2 = size - pipe + 1;
+				args2[len_args2 + 1] = "<";
+				args2[len_args2 + 2] = "temp.txt";
+				args2[len_args2 + 3] = NULL;		
+
+				print_char_ss(args2);
+
+				execute_commands(args1);
+				execute_commands(args2);
+		} else {
+				execute_commands(args);
+		}
+}
+
 void execute(char *command) {
     char *args[16];	
     parse_args(command, args);
-    execute_commands(args);
+    reorganize_pipe(args);
 } 
