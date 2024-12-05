@@ -9,6 +9,15 @@
 
 #define MAX_SIZE_ARG 20
 
+// slicing function
+char** slice(char **arg_ary, int start, int end) {
+		char **sliced_args = malloc(sizeof(char*) * (end-start + 1));
+		for (int i = start; i < end; i++) {
+				sliced_args[i - start] = arg_ary[i];
+		}
+		return sliced_args;
+}
+
 /*
  * Turns a space-separated command line into an array of words.
  * WARNING: Mutates the argument string.
@@ -16,37 +25,18 @@
  * Not available for use outside of `executor.c`.
  * Works the same as the python command.split(" ")[start:end]
  */
-void parse_args(char *command, char **arg_ary, int start, int end) {
+void parse_args(char *command, char **arg_ary) {
     int arg_index = 0;
-	int total_found = 0;
-    char *original_command = command;
-
     while (strstr(command, " ") != NULL) {
         char *c = strsep(&command, " ");
         if (strcmp("", c) != 0 && c[0] != ' ') {
-            total_found++;
-
-            // if you have a start value...
-            if (start != -1 && start > total_found) {
-                continue;
-            }
-
-            // if you have an end value...
-            if (end != -1 && total_found >= end) {
-                break;
-			}
-
             arg_ary[arg_index] = c;
             arg_index++;
-
-            printf("%d %s\n", arg_index, c);
-            
         }
     }
     arg_ary[arg_index] = command;
     arg_ary[arg_index + 1] = NULL;
 }
-
 
 /*
  * Parses and executes the command given in `command` using execvp().
@@ -104,8 +94,8 @@ void run(char *args[16], int input, int output, char *output_file, char *input_f
 }
 
 // for ref: void run(char *args[16], int input, int output, char *output_file, char *input_file)
-void execute_commands(char *command, char *args[16]) {
-    char *new_args[16];
+void execute_commands(char *args[16]) {
+    char **new_args;
     char *input_file = NULL;
     char *output_file = NULL;
     int output_mode = 0; // this could be 1 or 2 (see func above to see the diff)
@@ -113,6 +103,7 @@ void execute_commands(char *command, char *args[16]) {
     int index_last_command = 0;
     
     for (int i = 0; args[i] != NULL; i++) {
+				new_args = NULL;
         if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || 
             strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // last one for if the symbols dont exist in the command
             // first we will handle the redirection ones cause they are easiwer
@@ -120,7 +111,7 @@ void execute_commands(char *command, char *args[16]) {
                 i += 1;
                 input_file = args[i];
 
-                parse_args(command, new_args, index_last_command, i - 1);
+                new_args = slice(args, index_last_command, i - 1);
                 
                 run(new_args, 1, 0, NULL, input_file);
             } else if (strcmp(args[i], ">") == 0) {
@@ -128,9 +119,9 @@ void execute_commands(char *command, char *args[16]) {
                 output_file = args[i];
                 output_mode = 1;
 
-                parse_args(command, new_args, index_last_command, i - 0);
+                new_args = slice(args, index_last_command, i - 1);
 
-                printf("%s %s %d \n", new_args[0], new_args[1], i - 0);
+                printf("%s %s %d \n", new_args[0], new_args[1], i - 1);
                 
                 run(new_args, 0, 1, output_file, NULL);
             } else if (strcmp(args[i], ">>") == 0) {
@@ -138,21 +129,21 @@ void execute_commands(char *command, char *args[16]) {
                 output_file = args[i];
                 output_mode = 2;
 
-                parse_args(command, new_args, index_last_command, i - 1);
+                new_args = slice(args, index_last_command, i - 1);
                 
                 run(new_args, 0, output_mode, output_file, NULL);
             } else if (args[i + 1] == NULL) {
-                parse_args(command, new_args, index_last_command, i);
                 run(args, 0, 0, NULL, NULL);
             }
 
             index_last_command = i + 1;
         }
     }
+		free(new_args);
 }
 
 void execute(char *command) {
     char *args[16];	
-    parse_args(command, args, -1, -1);
-    execute_commands(command, args);
+    parse_args(command, args);
+    execute_commands(args);
 } 
