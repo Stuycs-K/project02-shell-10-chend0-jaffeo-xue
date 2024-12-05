@@ -10,16 +10,18 @@
 #define MAX_SIZE_ARG 20
 
 void print_char_ss(char **args) {
-		for (int i = 0; args[i] != NULL; i++) {
-				printf("%s ", args[i]);
+		for (int i = 0;; i++) {
+				printf("%d: `%s`\t", i, args[i]);
+				if (!args[i]) break;
 		}
 		printf("\n");
 }
 
 // slicing function
-char** slice(char **arg_ary, int start, int end) {
-		printf("%ld\n",sizeof(char*) * (end-start + 2));
-		char **sliced_args = malloc(sizeof(char*) * (end-start + 2));
+char** slice(char **arg_ary, int start, int end, int extra) {
+	printf("about to malloc!\n");
+		char **sliced_args = malloc(sizeof(char*) * (end-start+extra));
+	printf("got to malloc!\n");
 		for (int i = start; i < end; i++) {
 				sliced_args[i - start] = arg_ary[i];
 		}
@@ -110,6 +112,8 @@ void execute_commands(char **args) {
     char temp_file[] = "temp.txt";
     int index_last_command = 0;
     
+    printf("About to loop\n");
+	    print_char_ss(args);
     for (int i = 0; args[i] != NULL; i++) {
 				new_args = NULL;
         if (strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // last one for if the symbols dont exist in the command
@@ -118,7 +122,7 @@ void execute_commands(char **args) {
                 i += 1;
                 input_file = args[i];
 
-                new_args = slice(args, index_last_command, i - 1);
+                new_args = slice(args, index_last_command, i - 1, 0);
                 
                 run(new_args, 1, 0, NULL, input_file);
             } else if (strcmp(args[i], ">") == 0) {
@@ -126,9 +130,10 @@ void execute_commands(char **args) {
                 output_file = args[i];
                 output_mode = 1;
 
-                new_args = slice(args, index_last_command, i - 1);
+                new_args = slice(args, index_last_command, i - 1, 0);
 
                 printf("%s %s %d \n", new_args[0], new_args[1], i - 1);
+		printf("running with output file\n");
                 
                 run(new_args, 0, 1, output_file, NULL);
             } else if (strcmp(args[i], ">>") == 0) {
@@ -136,7 +141,7 @@ void execute_commands(char **args) {
                 output_file = args[i];
                 output_mode = 2;
 
-                new_args = slice(args, index_last_command, i - 1);
+                new_args = slice(args, index_last_command, i - 1, 0);
                 
                 run(new_args, 0, output_mode, output_file, NULL);
             } else if (args[i + 1] == NULL) {
@@ -146,7 +151,7 @@ void execute_commands(char **args) {
             index_last_command = i + 1;
         }
     }
-		free(new_args);
+    free(new_args);
 }
 
 void reorganize_pipe(char **args) {
@@ -162,10 +167,13 @@ void reorganize_pipe(char **args) {
 		printf("Size is %d and pip is at %d\n", size, pipe);
 
 		if (pipe > 0) {
-				char **args1 = malloc(sizeof(char*) * (size + 1));
-				char **args2 = malloc(sizeof(char*) * (size + 1));
+	printf("got 0\n");
+				char **args1;
+	printf("got 1\n");
+				char **args2;
+	printf(" got 2\n");
 
-				args1 = slice(args, 0, pipe);
+				args1 = slice(args, 0, pipe, 3);
 				args1[pipe] = ">";
 				args1[pipe + 1] = "temp.txt";
 				args1[pipe + 2] = NULL;
@@ -173,18 +181,25 @@ void reorganize_pipe(char **args) {
 				print_char_ss(args1);
 
 				printf("start %d end %d \n", pipe + 1, size);
-				args2 = slice(args, pipe + 1, size);
+				args2 = slice(args, pipe + 1, size, 3);
 				print_char_ss(args2);
-				int len_args2 = size - pipe + 1;
-				args2[len_args2 + 1] = "<";
-				args2[len_args2 + 2] = "temp.txt";
-				args2[len_args2 + 3] = NULL;		
+				int len_args2 = size - pipe - 1;
+				printf("calculated len args %d (from %d-%d)\n", len_args2, pipe+1, size);
+				args2[len_args2] = "<";
+				args2[len_args2 + 1] = "temp.txt";
+				args2[len_args2 + 2] = NULL;
 
+				printf("After appending\n");
 				print_char_ss(args2);
 
+				printf("Executing args1\n");
 				execute_commands(args1);
+				printf("Executing args2\n");
 				execute_commands(args2);
+				if (remove("temp.txt"))
+					perror("pipe buffer");
 		} else {
+				printf("Executing args0\n");
 				execute_commands(args);
 		}
 }
