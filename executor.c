@@ -112,7 +112,13 @@ void execute_commands(char *command, char *args[16]) {
         if (strcmp(args[i], "|") == 0 || strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 || strcmp(args[i], ">>") == 0 || args[i + 1] == NULL) { // got the last one too in case there are no specific stuff in the cmd
             // first we will handle the redirection ones cause they are easiwer
             if (strcmp(args[i], "<") == 0) {
-                run(args, 1, 0, NULL, args[i+1]);
+                i += 1;
+                printf("%d %s\n", i, args[i]);
+
+                char *new_args[16];
+                parse_args(command, new_args, index_last_command, i);
+                
+                run(args, 1, 0, NULL, args[i]);
             } else if (strcmp(args[i], ">") == 0) {
                 i += 1;
                 printf("%d %s\n", i, args[i]);
@@ -122,7 +128,13 @@ void execute_commands(char *command, char *args[16]) {
                 
                 run(new_args, 0, 1, args[i], NULL);
             } else if (strcmp(args[i], ">>") == 0) {
-                run(args, 0, 2, args[++i], NULL);
+                i += 1;
+                printf("%d %s\n", i, args[i]);
+
+                char *new_args[16];
+                parse_args(command, new_args, index_last_command, i);
+                
+                run(new_args, 0, 2, args[i], NULL);
             } else {
                 run(args, 0, 0, NULL, NULL);
             }
