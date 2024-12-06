@@ -80,6 +80,10 @@ void run(char *args[16], int input, int output, char *output_file,
             if (input > 0) {
                 int f_in = 0;
                 f_in = open(input_file, O_RDONLY);
+                if (f_in) {
+                    perror(input_file);
+                    exit(0);
+                }
                 dup2(f_in, stdin);
             }
 
@@ -90,10 +94,18 @@ void run(char *args[16], int input, int output, char *output_file,
                 int fd1 = 0;
                 if (output == 1) {
                     fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if (fd1) {
+                        perror(output_file);
+                        exit(0);
+                    }
                 }
                 if (output == 2) {
                     fd1 =
                         open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644);
+                    if (fd1) {
+                        perror(output_file);
+                        exit(0);
+                    }
                 }
                 dup2(fd1, stdout);
             }
