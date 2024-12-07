@@ -5,6 +5,7 @@
 ## DOE Presents: The Practical Operation Orchestration Prompt
 
 Group members: Elias Xu, David Chen, Otzar Jaffe
+DOE: David, Otzar Elias
 
 ### Feature Set
 
