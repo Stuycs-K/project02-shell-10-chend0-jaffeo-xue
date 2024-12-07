@@ -1,8 +1,8 @@
-echo "hello world"
-cowsay "sigma"
-cowsay -f vader "hello world"
-echo "hello world" | cowsay -f vader
-echo "hello world" > sigma.txt
+echo hello
+cowsay sigma
+cowsay -f vader hello
+echo hello | cowsay -f vader
+echo hello > sigma.txt
 cat sigma.txt
 echo "sigma skibidi" > sigma.txt
 cat < sigma.txt
