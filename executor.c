@@ -82,7 +82,7 @@ void run(char **args, int input, int output, char *output_file,
                     perror(input_file);
                     exit(errno);
                 }
-                dup2(f_in, stdin);
+                dup2(f_in, orig_stdin);
                 close(f_in);
             }
 
@@ -103,7 +103,7 @@ void run(char **args, int input, int output, char *output_file,
                         exit(errno);
                     }
                 }
-                dup2(fd1, stdout);
+                dup2(fd1, orig_stdout);
                 close(fd1);
             }
             execvp(args[0], args);
