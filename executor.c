@@ -116,6 +116,8 @@ void run(char **args, int input, int output, char *output_file,
     }
     dup2(backup_stdout, stdout);
     dup2(backup_stdin, stdin);
+    close(backup_stdin);
+    close(backup_stdout);
 }
 
 void execute_commands(char **args) {
