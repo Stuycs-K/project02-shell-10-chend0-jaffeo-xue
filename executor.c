@@ -160,8 +160,6 @@ void execute_commands(char **args) {
     }
 
     if (new_args != NULL) {
-        print_char_ss(args);
-        print_char_ss(new_args);
         run(new_args, input_mode, output_mode, output_file, input_file);
         free(new_args);
     } else {
