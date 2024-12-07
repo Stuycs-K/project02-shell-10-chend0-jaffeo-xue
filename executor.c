@@ -18,7 +18,7 @@ void print_char_ss(char **args) {
 
 // slicing function
 char **slice(char **arg_ary, int start, int end, int extra) {
-    char **sliced_args = malloc(sizeof(char *) * (end - start + extra));
+    char **sliced_args = malloc(sizeof(char *) * (end - start + extra + 1));
     if (!sliced_args) {
         perror("malloc sliced args");
         exit(errno);
@@ -26,6 +26,7 @@ char **slice(char **arg_ary, int start, int end, int extra) {
     for (int i = start; i < end; i++) {
         sliced_args[i - start] = arg_ary[i];
     }
+    sliced_args[end - start] = NULL;
     return sliced_args;
 }
 
@@ -159,6 +160,7 @@ void execute_commands(char **args) {
     }
 
     if (new_args != NULL) {
+        print_char_ss(args);
         print_char_ss(new_args);
         run(new_args, input_mode, output_mode, output_file, input_file);
         free(new_args);
