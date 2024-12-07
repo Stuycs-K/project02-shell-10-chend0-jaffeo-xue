@@ -74,7 +74,6 @@ void run(char **args, int input, int output, char *output_file,
             perror("fork");
             return;
         } else if (p == 0) {
-
             // input
             if (input > 0) {
                 int f_in = open(input_file, O_RDONLY, 0644);
@@ -160,6 +159,7 @@ void execute_commands(char **args) {
     }
 
     if (new_args != NULL) {
+        print_char_ss(new_args);
         run(new_args, input_mode, output_mode, output_file, input_file);
         free(new_args);
     } else {
