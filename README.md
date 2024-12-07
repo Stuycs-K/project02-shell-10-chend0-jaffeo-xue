@@ -13,67 +13,41 @@ Dynamic prompt that
 - displays the current working directory, with `~` substituted for `$HOME` when possible
 - displays `#` for root sessions, and `$` for other user sessions
 
+The shell can run prompts with pipes in them and commands with redirection.
+
 ### Unimplemented
 
-everything, for now...
+Nothing is unimplemented.
 
 ### Bugs
 
-### Function Reference
+We are not aware of any bugs in our shell.
 
-`executor.h`:
+### Function Reference (alphabetically by file name)
 
+`executor.c`
 ```c
-/*
- * Turns a space-separated command line into an array of words.
- * WARNING: Mutates the argument string.
- * Returns the NULL-terminated array of words.
- * Not available for use outside of `executor.c`.
- */
-char** parseCmd(char * command);
-
-/*
- * Parses and executes the command given in `command` using execvp().
- */
-void execute(char *command);
+void print_char_ss(char **args)
+char **slice(char **arg_ary, int start, int end, int extra)
+void parse_args(char *command, char **arg_ary)
+void run(char **args, int input, int output, char *output_file, char *input_file)
+void execute_commands(char **args)
+void reorganize_pipe(char **args)
+void execute(char *command)
 ```
 
-`parser.h`:
-
+`parser.c`
 ```c
-/*
- * Separates a semi-colon separated line of user input into an array of strings.
- * WARNING: Mutates the inputted line.
- * Returns the array of strings and writes the length of said array to `n`.
- */
-char ** parseCmds(char* line, unsigned long *n);
+char ** parseCmds(char* line, unsigned long *n)
 ```
 
-`proompt.h` (blame Elias for the name):
-
+`proompt.c`
 ```c
-/*
- * Reads the CWD, replacing leading instances of the environment variable $HOME with ~.
- * Trailing bytes may be allocated, and should be ignored.
- * WARNING: Implicitly malloc()s a buffer for the path, return value should be free()d.
- * Returns the string after ~ replacement.
- * Not available for use outside of `proompt.c`.
- */
-char * getPath();
-
-/*
- * Reads the CWD and UID and prints an appropriate Bash-style prompt.
- */
-void printPrompt();
+char *getPath()
+void printPrompt()
 ```
 
-`reader.h`:
-
+`reader.c`
 ```c
-/*
- * Reads a newline-delimited line of input from stdin. May exit on EOF if no buffered input is found.
- * WARNING: malloc()s a new block of data potentially larger than user input. Do not forget to free().
- * Returns the read line of input.
- */
-char * readLine();
+char *readLine()
 ```
