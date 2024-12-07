@@ -79,12 +79,13 @@ void run(char *args[16], int input, int output, char *output_file,
             // if we are sending something to an input
             if (input > 0) {
                 int f_in = 0;
-                f_in = open(input_file, O_RDONLY);
-                if (f_in) {
+                f_in = open(input_file, O_RDONLY | O_CREAT, 0644);
+                if (f_in == -1) {
                     perror(input_file);
                     exit(0);
                 }
                 dup2(f_in, stdin);
+                close(f_in);
             }
 
             // if we are sending something to an output
@@ -94,20 +95,20 @@ void run(char *args[16], int input, int output, char *output_file,
                 int fd1 = 0;
                 if (output == 1) {
                     fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                    if (fd1) {
+                    if (fd1 == -1) {
                         perror(output_file);
                         exit(0);
                     }
-                }
-                if (output == 2) {
+                } else if (output == 2) {
                     fd1 =
                         open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644);
-                    if (fd1) {
+                    if (fd1 == -1) {
                         perror(output_file);
                         exit(0);
                     }
                 }
                 dup2(fd1, stdout);
+                close(fd1);
             }
             execvp(args[0], args);
             perror(args[0]);
@@ -124,51 +125,69 @@ void run(char *args[16], int input, int output, char *output_file,
 // for ref: void run(char *args[16], int input, int output, char *output_file,
 // char *input_file)
 void execute_commands(char **args) {
+    printf("prev_args");
+    print_char_ss(args);
     char **new_args;
     char *input_file = NULL;
     char *output_file = NULL;
+    int input_mode = 0;
     int output_mode =
         0; // this could be 1 or 2 (see func above to see the diff)
-    char temp_file[] = "temp.txt";
     int index_last_command = 0;
-
     for (int i = 0; args[i] != NULL; i++) {
         new_args = NULL;
         if (strcmp(args[i], "<") == 0 || strcmp(args[i], ">") == 0 ||
             strcmp(args[i], ">>") == 0 ||
             args[i + 1] ==
                 NULL) { // last one for if the symbols dont exist in the command
-            // first we will handle the redirection ones cause they are easiwer
+            // first we will handle the redirection ones cause they are easier
             if (strcmp(args[i], "<") == 0) {
                 i += 1;
                 input_file = args[i];
+                input_mode = 1;
 
-                new_args = slice(args, index_last_command, i - 1, 0);
+                args = slice(args, index_last_command, i - 1, 0);
 
-                run(new_args, 1, 0, NULL, input_file);
+                printf("%d \n", i);
+                print_char_ss(args);
+                i = -1;
+                index_last_command = -1;
             } else if (strcmp(args[i], ">") == 0) {
                 i += 1;
+                printf("bannana\n");
                 output_file = args[i];
                 output_mode = 1;
-
-                new_args = slice(args, index_last_command, i - 1, 0);
-
-                run(new_args, 0, 1, output_file, NULL);
+                args = slice(args, index_last_command, i - 1, 0);
+                i = -1;
+                index_last_command = -1;
             } else if (strcmp(args[i], ">>") == 0) {
                 i += 1;
                 output_file = args[i];
                 output_mode = 2;
-
-                new_args = slice(args, index_last_command, i - 1, 0);
-
-                run(new_args, 0, output_mode, output_file, NULL);
+                args = slice(args, index_last_command, i - 1, 0);
+                i = -1;
+                index_last_command = -1;
             } else if (args[i + 1] == NULL) {
-                run(args, 0, 0, NULL, NULL);
+                break;
             }
-
             index_last_command = i + 1;
         }
     }
+
+    printf("new args[0] %s\n", args[0]);
+    print_char_ss(args);
+    printf("input mode %d\n", input_mode);
+    printf("output mode %d\n", output_mode);
+    printf("output file: %s \n", output_file);
+    printf("input file %s", input_file);
+    if (args != NULL) {
+        printf("pineapple\n");
+        run(args, input_mode, output_mode, output_file, input_file);
+    } else {
+        printf("skibidi\n");
+        run(args, input_mode, output_mode, output_file, input_file);
+    }
+
     free(new_args);
 }
 
@@ -183,6 +202,7 @@ void reorganize_pipe(char **args) {
     }
 
     if (pipe > 0) {
+        print_char_ss(args);
         char **args1;
         char **args2;
         char *temporary_file = NULL;
@@ -195,7 +215,7 @@ void reorganize_pipe(char **args) {
             }
         }
         if (temporary_file == NULL) {
-            temporary_file = "/tmp/temp.txt";
+            temporary_file = "temp.txt";
         }
 
         args1 = slice(args, 0, pipe, 3);
@@ -210,8 +230,9 @@ void reorganize_pipe(char **args) {
         args2[len_args2 + 2] = NULL;
         execute_commands(args1);
         execute_commands(args2);
-        if (strcmp(temporary_file, "/tmp/temp.txt") == 0) {
-            if (remove(temporary_file))
+
+        if (strcmp(temporary_file, "temp.txt") == 0) {
+            if (remove(temporary_file) == -1)
                 perror("pipe buffer");
         }
     } else {
