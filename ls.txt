@@ -3,7 +3,6 @@ colors.h
 commands.txt
 executor.c
 executor.h
-executor.o
 ls.txt
 main.c
 main.o

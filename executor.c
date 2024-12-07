@@ -54,8 +54,8 @@ void parse_args(char *command, char **arg_ary) {
  */
 void run(char **args, int input, int output, char *output_file,
          char *input_file) {
-    int stdout = STDOUT_FILENO, stdin = STDIN_FILENO;
-    int backup_stdout = dup(stdout), backup_stdin = dup(stdin);
+    int orig_stdout = STDOUT_FILENO, orig_stdin = STDIN_FILENO;
+    int backup_stdout = dup(orig_stdout), backup_stdin = dup(stdin);
 
     if (args[0] == NULL || args[0][0] == '\0')
         return;
@@ -114,8 +114,8 @@ void run(char **args, int input, int output, char *output_file,
             int exit_pid = wait(&status);
         }
     }
-    dup2(backup_stdout, stdout);
-    dup2(backup_stdin, stdin);
+    dup2(backup_stdout, orig_stdout);
+    dup2(backup_stdin, orig_stdin);
     close(backup_stdin);
     close(backup_stdout);
 }
