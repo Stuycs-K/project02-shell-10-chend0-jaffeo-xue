@@ -55,7 +55,7 @@ void parse_args(char *command, char **arg_ary) {
 void run(char **args, int input, int output, char *output_file,
          char *input_file) {
     int orig_stdout = STDOUT_FILENO, orig_stdin = STDIN_FILENO;
-    int backup_stdout = dup(orig_stdout), backup_stdin = dup(stdin);
+    int backup_stdout = dup(orig_stdout), backup_stdin = dup(orig_stdin);
 
     if (args[0] == NULL || args[0][0] == '\0')
         return;
