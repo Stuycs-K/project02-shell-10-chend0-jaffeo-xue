@@ -58,6 +58,7 @@ char *getPath() {
 
 /*
  * Reads the CWD and UID and prints an appropriate Bash-style prompt.
+ * @return: void
  */
 void printPrompt() {
     char suffix = geteuid() ? '$' : '#'; // eUID == 0 for root

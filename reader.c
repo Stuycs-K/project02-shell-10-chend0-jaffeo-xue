@@ -7,6 +7,7 @@
  * buffered input is found. WARNING: malloc()s a new block of data potentially
  * larger than user input. Do not forget to free(). Returns the read line of
  * input.
+ * @return: ret, the read line of input.
  */
 char *readLine() {
     unsigned long i = 0, size = 16;

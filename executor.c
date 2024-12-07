@@ -7,6 +7,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+/*
+ * Prints the given array of strings.
+ * WARNING: The array must be NULL-terminated.
+ * Not available for use outside of `executor.c`.
+ * Works the same as the python print(args)
+ * @param args: The array of strings to print.
+ * @return: void
+*/
 void print_char_ss(char **args) {
     for (int i = 0;; i++) {
         printf("%d: `%s`\t", i, args[i]);
@@ -16,7 +24,18 @@ void print_char_ss(char **args) {
     printf("\n");
 }
 
-// slicing function
+
+/*
+ * Slices the given array of strings from `start` to `end`.
+ * WARNING: The array must be NULL-terminated.
+ * Not available for use outside of `executor.c`.
+ * Works the same as the python command[start:end]
+ * @param arg_ary: The array of strings to slice.
+ * @param start: The starting index of the slice.
+ * @param end: The ending index of the slice.
+ * @param extra: The number of extra elements to allocate (to prevent a malloc error).
+ * @return: The sliced array of strings.
+ */
 char **slice(char **arg_ary, int start, int end, int extra) {
     char **sliced_args = malloc(sizeof(char *) * (end - start + extra + 1));
     if (!sliced_args) {
@@ -36,6 +55,9 @@ char **slice(char **arg_ary, int start, int end, int extra) {
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
  * Works the same as the python command.split(" ")[start:end]
+ * @param command: The command line to parse.
+ * @param arg_ary: The array of strings to fill with the words.
+ * @return: void
  */
 void parse_args(char *command, char **arg_ary) {
     int arg_index = 0;
@@ -52,6 +74,13 @@ void parse_args(char *command, char **arg_ary) {
 
 /*
  * Parses and executes the command given in `command` using execvp().
+ * Not available for use outside of `executor.c`.
+ * @param args: The array of strings representing the command.
+ * @param input: The input mode (0 for no input, 1 for input).
+ * @param output: The output mode (0 for no output, 1 for output, 2 for append).
+ * @param output_file: The file to write the output to.
+ * @param input_file: The file to read the input from.
+ * @return: void
  */
 void run(char **args, int input, int output, char *output_file,
          char *input_file) {
@@ -120,6 +149,13 @@ void run(char **args, int input, int output, char *output_file,
     close(backup_stdout);
 }
 
+
+/*
+ * Executes the given command.
+ * Not available for use outside of `executor.c`.
+ * @param args: The command to execute.
+ * @return: void
+ */
 void execute_commands(char **args) {
     char **new_args = NULL;
     char *input_file = NULL, *output_file = NULL;
@@ -167,6 +203,12 @@ void execute_commands(char **args) {
     }
 }
 
+/*
+ * Reorganizes the command to handle pipes and executes it.
+ * Not available for use outside of `executor.c`.
+ * @param args: The command to reorganize.
+ * @return: void
+ */
 void reorganize_pipe(char **args) {
     int pipe = -1, size = 0;
     for (int i = 0; args[i] != NULL; i++) {
@@ -219,6 +261,11 @@ void reorganize_pipe(char **args) {
     }
 }
 
+/*
+ * Executes the given command.
+ * @param command: The command to execute.
+ * @return: void
+ */
 void execute(char *command) {
     char *args[strlen(command)];
     parse_args(command, args);
