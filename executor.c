@@ -2,7 +2,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -20,7 +19,7 @@ void print_char_ss(char **args) {
 // slicing function
 char **slice(char **arg_ary, int start, int end, int extra) {
     char **sliced_args = malloc(sizeof(char *) * (end - start + extra));
-    if (! sliced_args) {
+    if (!sliced_args) {
         perror("malloc sliced args");
         exit(errno);
     }
