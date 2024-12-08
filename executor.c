@@ -14,7 +14,7 @@
  * Works the same as the python print(args)
  * @param args: The array of strings to print.
  * @return: void
-*/
+ */
 void print_char_ss(char **args) {
     for (int i = 0;; i++) {
         printf("%d: `%s`\t", i, args[i]);
@@ -95,8 +95,8 @@ int run(char **args, char input, char output, char *input_file,
             path = getenv("HOME");
         if (path) { // could be still NULL from being HOMEless
             if (chdir(path))
-		    perror(path);
-	}
+                perror(path);
+        }
     } else if (!strcmp(args[0], "exit")) {
         exit(0);
     } else {

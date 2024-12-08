@@ -10,14 +10,14 @@
  * @param n: The number of commands in the line.
  * Returns the array of strings and writes the length of said array to `n`.
  */
-char ** parseCmds(char* line, unsigned long *n) {
+char **parseCmds(char *line, unsigned long *n) {
     unsigned long size = 1, i = 0;
-    char** cmds = malloc(sizeof(char*));
+    char **cmds = malloc(sizeof(char *));
     if (!cmds) {
         perror("parseCmds(): malloc");
         exit(errno);
     }
-    char* cur = line;
+    char *cur = line;
     do {
         if (i >= size) {
             // we're ArrayListing this today
@@ -30,7 +30,7 @@ char ** parseCmds(char* line, unsigned long *n) {
         cmds[i] = cur;
         strsep(&cur, ";");
         i++;
-    } while ( cur );
+    } while (cur);
     *n = i;
     return cmds;
 }

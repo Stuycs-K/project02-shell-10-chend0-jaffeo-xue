@@ -127,7 +127,7 @@ void execute(char *command);
  * @param n: The number of commands in the line.
  * Returns the array of strings and writes the length of said array to `n`.
  */
-char ** parseCmds(char* line, unsigned long *n);
+char **parseCmds(char* line, unsigned long *n);
 ```
 
 `proompt.c`
