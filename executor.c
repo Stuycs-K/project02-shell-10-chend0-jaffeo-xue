@@ -111,7 +111,7 @@ int run(char **args, char input, char output, char *input_file,
                 int f_in = open(input_file, O_RDONLY, 0644);
                 if (f_in == -1) {
                     perror(input_file);
-                    return errno;
+                    exit(errno);
                 }
                 dup2(f_in, orig_stdin);
                 close(f_in);
@@ -128,16 +128,12 @@ int run(char **args, char input, char output, char *input_file,
                 else {
                     errno = EINVAL;
                     perror("run(): output");
-                    dup2(backup_stdin, orig_stdin);
-                    close(backup_stdin);
-                    return errno;
+                    exit(errno);
                 }
                 fd1 = open(output_file, flags, 0644);
                 if (fd1 == -1) {
                     perror(output_file);
-                    dup2(backup_stdin, orig_stdin);
-                    close(backup_stdin);
-                    return errno;
+                    exit(errno);
                 }
                 dup2(fd1, orig_stdout);
                 close(fd1);
