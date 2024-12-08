@@ -1,6 +1,7 @@
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdlib.h>
 /*
  * Separates a semi-colon separated line of user input into an array of strings.
  * WARNING: Mutates the inputted line.
@@ -12,12 +13,19 @@
 char ** parseCmds(char* line, unsigned long *n) {
     unsigned long size = 1, i = 0;
     char** cmds = malloc(sizeof(char*));
+    if (!cmds) {
+        perror("parseCmds(): malloc");
+        exit(errno);
+    }
     char* cur = line;
     do {
-        if (i > size) {
+        if (i >= size) {
             // we're ArrayListing this today
             size *= 2;
-            cmds = realloc(cmds, size * (sizeof(char*)));
+            if (!(cmds = realloc(cmds, size * (sizeof(char *))))) {
+                perror("parseCmds(): realloc");
+                exit(errno);
+            }
         }
         cmds[i] = cur;
         strsep(&cur, ";");
