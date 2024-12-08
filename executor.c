@@ -24,22 +24,22 @@ void print_char_ss(char **args) {
     printf("\n");
 }
 
-
 /*
- * Slices the given array of strings from `start` to `end`.
- * WARNING: The array must be NULL-terminated.
- * Not available for use outside of `executor.c`.
- * Works the same as the python command[start:end]
+ * Copies a slice of the given array of strings from `start` to `end`
+ * (exclusive). The slice be NULL-terminated. WARNING: Returned buffer should be
+ * freed after use. Not available for use outside of `executor.c`. Inspired by
+ * the Python array slice mechanism.
  * @param arg_ary: The array of strings to slice.
  * @param start: The starting index of the slice.
  * @param end: The ending index of the slice.
- * @param extra: The number of extra elements to allocate (to prevent a malloc error).
+ * @param extra: The number of extra elements to allocate (to prevent a malloc
+ * error).
  * @return: The sliced array of strings.
  */
 char **slice(char **arg_ary, int start, int end, int extra) {
     char **sliced_args = malloc(sizeof(char *) * (end - start + extra + 1));
     if (!sliced_args) {
-        perror("malloc sliced args");
+        perror("slice(): malloc");
         exit(errno);
     }
     for (int i = start; i < end; i++) {
@@ -52,9 +52,9 @@ char **slice(char **arg_ary, int start, int end, int extra) {
 /*
  * Turns a space-separated command line into an array of words.
  * WARNING: Mutates the argument string.
+ * WARNING: Requires arg_ary to point to a sufficiently large buffer.
  * Returns the NULL-terminated array of words.
  * Not available for use outside of `executor.c`.
- * Works the same as the python command.split(" ")[start:end]
  * @param command: The command line to parse.
  * @param arg_ary: The array of strings to fill with the words.
  * @return: void
@@ -82,8 +82,8 @@ void parse_args(char *command, char **arg_ary) {
  * @param input_file: The file to read the input from.
  * @return: void
  */
-void run(char **args, int input, int output, char *output_file,
-         char *input_file) {
+void run(char **args, char input, char output, char *input_file,
+         char *output_file) {
     int orig_stdout = STDOUT_FILENO, orig_stdin = STDIN_FILENO;
     int backup_stdout = dup(orig_stdout), backup_stdin = dup(orig_stdin);
 
@@ -96,7 +96,7 @@ void run(char **args, int input, int output, char *output_file,
         if (path) // could be still NULL from being HOMEless
             chdir(path);
     } else if (!strcmp(args[0], "exit")) {
-        exit(errno);
+        exit(0);
     } else {
         pid_t p;
         p = fork();
@@ -109,7 +109,7 @@ void run(char **args, int input, int output, char *output_file,
                 int f_in = open(input_file, O_RDONLY, 0644);
                 if (f_in == -1) {
                     perror(input_file);
-                    exit(errno);
+                    return;
                 }
                 dup2(f_in, orig_stdin);
                 close(f_in);
@@ -118,26 +118,30 @@ void run(char **args, int input, int output, char *output_file,
             // output
             if (output > 0) {
                 int fd1 = 0;
-                if (output == 1) {
-                    fd1 = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                    if (fd1 == -1) {
-                        perror(output_file);
-                        exit(errno);
-                    }
-                } else if (output == 2) {
-                    fd1 =
-                        open(output_file, O_WRONLY | O_APPEND | O_CREAT, 0644);
-                    if (fd1 == -1) {
-                        perror(output_file);
-                        exit(errno);
-                    }
+                int flags = O_WRONLY | O_CREAT;
+                if (output == 1)
+                    flags |= O_TRUNC;
+                else if (output == 2)
+                    flags |= O_APPEND;
+                else {
+                    errno = EINVAL;
+                    perror("run(): output");
+                    dup2(backup_stdin, orig_stdin);
+                    close(backup_stdin);
+                    return;
+                }
+                fd1 = open(output_file, flags, 0644);
+                if (fd1 == -1) {
+                    perror(output_file);
+                    dup2(backup_stdin, orig_stdin);
+                    close(backup_stdin);
+                    return;
                 }
                 dup2(fd1, orig_stdout);
                 close(fd1);
             }
             execvp(args[0], args);
             perror(args[0]);
-            exit(errno);
         } else {
             int status;
             int exit_pid = wait(&status);
@@ -148,7 +152,6 @@ void run(char **args, int input, int output, char *output_file,
     close(backup_stdin);
     close(backup_stdout);
 }
-
 
 /*
  * Executes the given command.
@@ -196,10 +199,10 @@ void execute_commands(char **args) {
     }
 
     if (new_args != NULL) {
-        run(new_args, input_mode, output_mode, output_file, input_file);
+        run(new_args, input_mode, output_mode, input_file, output_file);
         free(new_args);
     } else {
-        run(args, input_mode, output_mode, output_file, input_file);
+        run(args, input_mode, output_mode, input_file, output_file);
     }
 }
 
@@ -267,7 +270,8 @@ void reorganize_pipe(char **args) {
  * @return: void
  */
 void execute(char *command) {
-    char *args[strlen(command)];
+    // heuristic buffer sizing method
+    char *args[strlen(command) / 2 + 2];
     parse_args(command, args);
     reorganize_pipe(args);
 }
