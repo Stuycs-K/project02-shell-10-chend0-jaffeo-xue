@@ -29,7 +29,7 @@ char *readLine() {
             endLoop = 1;
             if (i) {
                 // roll back trailing whitespace
-                while (i > 1 || ret[--i] == ' ' || ret[i] == '\t')
+                while (i > 1 && (ret[--i] == ' ' || ret[i] == '\t'))
                     ;
                 i++;
             }
