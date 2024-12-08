@@ -13,7 +13,6 @@
  * Returns the string after ~ replacement.
  * Not available for use outside of `proompt.c`.
  */
-
 char *getPath() {
 #ifdef __GLIBC__
     // uses glibc extension to getcwd()

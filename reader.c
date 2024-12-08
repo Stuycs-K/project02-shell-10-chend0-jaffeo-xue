@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /*
  * Reads a newline-delimited line of input from stdin. May exit on EOF if no
  * buffered input is found. WARNING: malloc()s a new block of data potentially
